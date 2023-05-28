@@ -30,6 +30,7 @@ RUN apt-get update && \
   xinit \
   kde-plasma-desktop \
   tzdata \
+  nvtop \
   wget && \
   add-apt-repository -y ppa:mozillateam/ppa && \
   apt-get update && apt-get install -y firefox-esr
