@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        
+      - name: checking files
+        run: |
+          ls -hal
       
       - name: Docker meta
         id: meta
