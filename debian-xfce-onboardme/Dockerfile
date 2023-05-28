@@ -26,7 +26,7 @@ RUN apt-get update && \
   dbus-x11 \
   xvfb \
   xorg \
-  xterm \
+  konsole \
   xinit \
   xfce4 \
   xfce4-goodies \
