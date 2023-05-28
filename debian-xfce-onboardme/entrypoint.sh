@@ -41,9 +41,9 @@ init(){
                 xvfb \
                 xorg \
                 htop
-        
+
         # Set the the user password
-        echo "${USER}:{$PASSWD}" | sudo chpasswd
+        echo "friend:{$PASSWD}" | sudo chpasswd
 
         # Start DBus without systemd
         sudo /etc/init.d/dbus start
@@ -98,7 +98,7 @@ install_driver() {
 
 find_gpu(){
         # Get first GPU device if all devices are available or `NVIDIA_VISIBLE_DEVICES` is not set
-        if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ]; then
+       if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ]; then
           export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
         elif [ -z "$NVIDIA_VISIBLE_DEVICES" ]; then
           export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
@@ -159,8 +159,8 @@ create_xorg_conf(){
 
 start_app(){
         # Since we dont boot the system with systemd, starting and maintaining long-running
-        # processes is tricky and has multiple approaches. You can do as the Nvidia-GLX-Desktop 
-        # does and use supervisord to start process as shown in the link below. 
+        # processes is tricky and has multiple approaches. You can do as the Nvidia-GLX-Desktop
+        # does and use supervisord to start process as shown in the link below.
         # - https://github.com/selkies-project/docker-nvidia-glx-desktop/blob/main/supervisord.conf
         #
         # You can also use this neat project to simulate systemd/systemctl in a container:
@@ -168,9 +168,9 @@ start_app(){
         #
         # I'm using another option, which is to use tmux to manage sessions of the individual application.
         # this method is janky and fragile but I think it's easier to use during development because
-        # it only relies on tmux (no special dependancies or extra config files) and attaching to the 
-        # sessions via tmux attach-session -t <app> is easier and more intuitive than trying to find 
-        # the process ID and re-attach a shell. Additionally it prevents the main user-shell from being 
+        # it only relies on tmux (no special dependancies or extra config files) and attaching to the
+        # sessions via tmux attach-session -t <app> is easier and more intuitive than trying to find
+        # the process ID and re-attach a shell. Additionally it prevents the main user-shell from being
         # monopoloized by stdout messages from supervisord andallows for additional commands to be run after
         # entrypoint.sh has finished.
         #
@@ -189,11 +189,11 @@ start_app(){
         +extension RANDR \
         +extension RENDER \
         +extension MIT-SHM ${DISPLAY}" ENTER
-        
+
         echo "Waiting for X socket"
         until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
         echo "X socket is ready"
-        
+
         # Start an x11vnc session that brodcasts the contents our X session
         tmux new-session -d -s "x11vnc"
         tmux send-keys -t "x11vnc" "export DISPLAY=:0 && \
@@ -207,7 +207,7 @@ start_app(){
         -xrandr resize \
         -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
-        
+
         # Start the no-vnc session that exposes x11vnc over websocket
         tmux new-session -d -s "novnc"
         tmux send-keys -t "novnc" "export DISPLAY=:0 && \
@@ -215,7 +215,7 @@ start_app(){
         --vnc localhost:5900 \
         --listen 8080 \
         --heartbeat 10" ENTER
-        
+
         # Start the desktop session
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
