@@ -63,6 +63,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         libxss-dev \
         libxtst-dev \
         libavahi-client-dev && \
+        apt-get remove flatpak && \
         rm -rf /var/lib/apt/lists/*
 
 RUN git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
@@ -79,8 +80,24 @@ RUN git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
     # Use the latest Websockify source to expose noVNC
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
 
+RUN usermod -aG sudo friend && \
+    usermod --shell /bin/bash friend && \
+    echo 'friend ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+    mkdir -p /home/friend/.local/bin && \
+    mkdir -p /home/friend/.local/lib && \
+    chown -R friend:friend /home/friend/.local
+
+RUN wget -o /tmp/Envi-theme.tar.gz https://github.com/toorandomenvi/Envi-Theme/blob/master/Envi-theme-1.0.tar.gz
+
 # Swap to user account
 USER friend
+
+RUN brew tap wez/wezterm-linuxbrew && \
+    brew install wezterm && \
+    sed -i 's/mononoki/Mononoki Nerd Font/g' /home/friend/.config/wezterm/wezterm.lua
+
+ENV PATH=/home/friend/.linuxbrew/bin:$PATH
+
 WORKDIR /home/friend/
 
 COPY entrypoint.sh /entrypoint.sh
