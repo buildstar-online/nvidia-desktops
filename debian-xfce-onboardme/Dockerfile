@@ -31,7 +31,6 @@ RUN sudo apt-get update && \
   xfce4 \
   xfce4-goodies \
   tzdata \
-  nvtop \
   wget && \
   sudo add-apt-repository -y ppa:mozillateam/ppa && \
   sudo apt-get update && sudo apt-get install -y firefox-esr && \
