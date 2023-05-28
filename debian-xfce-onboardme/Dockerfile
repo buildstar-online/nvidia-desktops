@@ -13,8 +13,8 @@ ENV APPIMAGE_EXTRACT_AND_RUN 1
 COPY mozilla-firefox /etc/apt/preferences.d/mozilla-firefox
 
 # Install deps for Nvidia and Desktop
-RUN apt-get update && \
-  apt-get install -y software-properties-common \
+RUN sudo apt-get update && \
+  sudo apt-get install -y software-properties-common \
   sudo \
   tmux \
   curl \
@@ -33,12 +33,13 @@ RUN apt-get update && \
   tzdata \
   nvtop \
   wget && \
-  add-apt-repository -y ppa:mozillateam/ppa && \
-  apt-get update && apt-get install -y firefox-esr
+  sudo add-apt-repository -y ppa:mozillateam/ppa && \
+  sudo apt-get update && sudo apt-get install -y firefox-esr && \
+  sudo rm -rf /var/lib/apt/lists/*
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.4.0
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN sudo apt-get update && sudo apt-get install --no-install-recommends -y \
         autoconf \
         automake \
         autotools-dev \
@@ -61,7 +62,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         libxss-dev \
         libxtst-dev \
         libavahi-client-dev && \
-    rm -rf /var/lib/apt/lists/* && \
+    sudo rm -rf /var/lib/apt/lists/* && \
     # Build the latest x11vnc source to avoid various errors
     git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
     cd /tmp/x11vnc && autoreconf -fi && ./configure && make install && cd / && rm -rf /tmp/* && \
