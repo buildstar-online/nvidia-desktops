@@ -1,4 +1,4 @@
-name: Build-And-Push Docker Image
+name: Build-And-Push Ubuntu XFCE Image
 
 on:
   workflow_dispatch:
