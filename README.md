@@ -1,2 +1,3 @@
-# nvidia-desktops
-Containeried desktop environments for use with the nvidia-container-runtime
+# Nvidia Desktops
+
+Containerized desktop environments for use with the nvidia-container-runtime.
