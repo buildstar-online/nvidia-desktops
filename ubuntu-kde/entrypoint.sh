@@ -44,7 +44,7 @@ init(){
                 xfce4
         
         # Set the the user password
-        sudo echo "${USER}:{$PASSWD}" | chpasswd
+        echo "${USER}:{$PASSWD}" | sudo chpasswd
 
         # Start DBus without systemd
         sudo /etc/init.d/dbus start
