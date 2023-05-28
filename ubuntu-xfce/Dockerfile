@@ -34,12 +34,47 @@ RUN apt-get update && \
   wget && \
   add-apt-repository -y ppa:mozillateam/ppa && \
   apt-get update && apt-get install -y firefox-esr
+
+# Install NoVNC to expose x11vnc via websocket
+RUN apt-get update && apt-get install --no-install-recommends -y \
+        autoconf \
+        automake \
+        autotools-dev \
+        chrpath \
+        debhelper \
+        git \
+        jq \
+        python3 \
+        python3-numpy \
+        libc6-dev \
+        libcairo2-dev \
+        libjpeg-turbo8-dev \
+        libssl-dev \
+        libv4l-dev \
+        libvncserver-dev \
+        libtool-bin \
+        libxdamage-dev \
+        libxinerama-dev \
+        libxrandr-dev \
+        libxss-dev \
+        libxtst-dev \
+        libavahi-client-dev && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Build the latest x11vnc source to avoid various errors
+    git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
+    cd /tmp/x11vnc && autoreconf -fi && ./configure && make install && cd / && rm -rf /tmp/* && \
+    curl -fsSL "https://github.com/novnc/noVNC/archive/v${NOVNC_VERSION}.tar.gz" | tar -xzf - -C /opt && \
+    mv -f "/opt/noVNC-${NOVNC_VERSION}" /opt/noVNC && \
+    ln -snf /opt/noVNC/vnc.html /opt/noVNC/index.html && \
+    # Use the latest Websockify source to expose noVNC
+    git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
+    
+# create a user for non-root operation
 ARG USER="player1"
 
-# create a user for non-root operation
 RUN useradd -ms /bin/bash $USER && \
         usermod -aG sudo $USER && \
-        echo 'player1 ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+        echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
         mkdir -p /home/$USER/.local/bin && \
         mkdir -p /home/$USER/.local/lib && \
         chown $USER:$USER /home/$USER/.local/bin && \
