@@ -40,8 +40,7 @@ init(){
                 x11vnc \
                 xvfb \
                 xorg \
-                htop \
-                xfce4
+                htop
         
         # Set the the user password
         echo "${USER}:{$PASSWD}" | sudo chpasswd
