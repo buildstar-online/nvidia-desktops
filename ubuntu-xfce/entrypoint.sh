@@ -15,10 +15,9 @@ export APPIMAGE_EXTRACT_AND_RUN=1
 # System defaults that should not be changed
 export DISPLAY=:0
 export XDG_RUNTIME_DIR=/tmp/runtime-user
-#export PULSE_SERVER=unix:/run/pulse/native
 export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
-# Default environment variables (password is "mypasswd")
+# Default environment variables
 export TZ=UTC
 export SIZEW=1920
 export SIZEH=1080
@@ -26,12 +25,7 @@ export REFRESH=60
 export DPI=96
 export CDEPTH=24
 export VIDEO_PORT=DFP
-export PASSWD=mypasswd
-export NOVNC_ENABLE=false
-export WEBRTC_ENCODER=nvh264enc
-export WEBRTC_ENABLE_RESIZE=false
-export ENABLE_AUDIO=true
-export ENABLE_BASIC_AUTH=true
+export PASSWD=ChangeMe!
 
 
 init(){
@@ -48,11 +42,9 @@ init(){
                 xorg \
                 htop \
                 xfce4
-
-        useradd -ms /bin/bash player1 && \
-        usermod -aG sudo player1 && \
-        echo 'player1 ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-        echo "${USER}:{$PASSWD}" | chpasswd
+        
+        # Set the the user password
+        sudo echo "${USER}:{$PASSWD}" | chpasswd
 
         # Start DBus without systemd
         sudo /etc/init.d/dbus start
@@ -214,6 +206,7 @@ start_app(){
         -snapfb \
         -threads \
         -xrandr resize \
+        -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
         
         # Start the no-vnc session that exposes x11vnc over websocket
