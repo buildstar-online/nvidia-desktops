@@ -52,6 +52,7 @@ init(){
         useradd -ms /bin/bash player1 && \
         usermod -aG sudo player1 && \
         echo 'player1 ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
+        echo "${USER}:{$PASSWD}" | chpasswd
 
         # Start DBus without systemd
         sudo /etc/init.d/dbus start
