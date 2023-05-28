@@ -33,9 +33,7 @@ RUN apt-get update && \
   tzdata \
   wget && \
   add-apt-repository -y ppa:mozillateam/ppa && \
-  apt-get update && apt-get install -y firefox-esr && \
-  wget -O /entrypoint.sh https://raw.githubusercontent.com/buildstar-online/gameci-docker-extras/main/gpu-enable.sh
-
+  apt-get update && apt-get install -y firefox-esr
 ARG USER="player1"
 
 # create a user for non-root operation
@@ -50,5 +48,7 @@ RUN useradd -ms /bin/bash $USER && \
 # Swap to user account
 USER $USER
 WORKDIR /home/$USER/
+
+COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
