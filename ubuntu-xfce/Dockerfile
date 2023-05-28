@@ -36,6 +36,7 @@ RUN apt-get update && \
   apt-get update && apt-get install -y firefox-esr
 
 # Install NoVNC to expose x11vnc via websocket
+ARG NOVNC_VERSION=1.4.0
 RUN apt-get update && apt-get install --no-install-recommends -y \
         autoconf \
         automake \
