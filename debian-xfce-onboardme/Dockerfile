@@ -87,18 +87,18 @@ RUN usermod -aG sudo friend && \
     mkdir -p /home/friend/.local/lib && \
     chown -R friend:friend /home/friend/.local
 
-RUN wget -o /tmp/Envi-theme.tar.gz https://github.com/toorandomenvi/Envi-Theme/blob/master/Envi-theme-1.0.tar.gz
-
 # Swap to user account
 USER friend
+ENV PATH=/home/friend/.linuxbrew/bin:$PATH
+WORKDIR /home/friend/
 
 RUN brew tap wez/wezterm-linuxbrew && \
     brew install wezterm && \
     sed -i 's/mononoki/Mononoki Nerd Font/g' /home/friend/.config/wezterm/wezterm.lua
 
-ENV PATH=/home/friend/.linuxbrew/bin:$PATH
+COPY 16852853561.desktop /home/friend/.config/xfce4/panel/launcher-17/16852853561.desktop
 
-WORKDIR /home/friend/
+RUN wget -o /tmp/Envi-theme.tar.gz https://github.com/toorandomenvi/Envi-Theme/blob/master/Envi-theme-1.0.tar.gz
 
 COPY entrypoint.sh /entrypoint.sh
 
