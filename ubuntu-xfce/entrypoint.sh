@@ -43,7 +43,8 @@ init(){
                 xvfb \
                 xorg \
                 ${DESKTOP} \
-                htop
+                htop \
+                software-properties-common
 
         sudo add-apt-repository -y ppa:mozillateam/ppa && \
         sudo apt-get update && \
