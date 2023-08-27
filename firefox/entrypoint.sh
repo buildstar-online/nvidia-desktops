@@ -216,4 +216,4 @@ start_app(){
 init
 find_gpu
 start_app
-firefox-esr --kiosk
+firefox-esr $1 --kiosk 
