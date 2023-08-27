@@ -29,27 +29,6 @@ export PASSWD=ChangeMe!
 export DESKTOP="xfce4 xfce4-goodies"
 
 init(){
-        wget https://raw.githubusercontent.com/buildstar-online/nvidia-desktops/main/ubuntu-xfce/mozilla-firefox
-        
-        sudo apt-get update && \
-                sudo apt-get install -y kmod \
-                pkg-config \
-                make \
-                libvulkan1 \
-                dbus \
-                dbus-x11 \
-                tmux \
-                x11vnc \
-                xvfb \
-                xorg \
-                ${DESKTOP} \
-                htop \
-                software-properties-common
-
-        sudo add-apt-repository -y ppa:mozillateam/ppa && \
-        sudo apt-get update && \
-        sudo apt-get install -y firefox-esr
-        
         # Set the the user password
         echo "${USER}:{$PASSWD}" | sudo chpasswd
 
