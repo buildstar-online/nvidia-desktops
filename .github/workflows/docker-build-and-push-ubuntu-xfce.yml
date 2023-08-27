@@ -2,7 +2,11 @@ name: Build-And-Push Ubuntu XFCE Image
 
 on:
   workflow_dispatch:
-
+    inputs:
+      tag:
+        description: 'Image Tag'
+        required: true
+        default: 'latest'
 jobs:
   ubuntu-xfce:
     runs-on: ubuntu-latest
@@ -15,7 +19,8 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: deserializeme/ubuntu-xfce
-          tags: latest
+          tags: |
+            "${{github.event.inputs.tag}}"
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
