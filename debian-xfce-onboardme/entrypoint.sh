@@ -111,8 +111,10 @@ find_gpu(){
         fi
 
         if [ -z "$GPU_SELECT" ]; then
-          echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. Exiting."
-          exit 1
+          echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. skipping."
+        else
+          install_driver
+          create_xorg_conf
         fi
 
         # Setting `VIDEO_PORT` to none disables RANDR/XRANDR, do not set this if using datacenter GPUs
@@ -224,7 +226,5 @@ start_app(){
 
 init
 find_gpu
-install_driver
-create_xorg_conf
 start_app
 /bin/bash
