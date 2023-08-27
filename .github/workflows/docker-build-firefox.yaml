@@ -9,7 +9,7 @@ on:
         default: 'latest'
 
 jobs:
-  debian12-xfce:
+  firefox:
     runs-on: self-hosted
     steps:
       - name: Checkout
