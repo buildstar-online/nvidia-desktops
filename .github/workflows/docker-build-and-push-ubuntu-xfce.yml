@@ -1,4 +1,4 @@
-name: Build-And-Push Ubuntu XFCE Image
+name: Build Ubuntu + XFCE
 
 on:
   workflow_dispatch:

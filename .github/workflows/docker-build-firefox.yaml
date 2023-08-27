@@ -1,4 +1,4 @@
-name: Build-And-Push Debian12 XFCE + Onboardme
+name: Build Firefox
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Build-And-Push Ubuntu KDE Image
+name: Build Ubuntu + KDE
 
 on:
   workflow_dispatch:

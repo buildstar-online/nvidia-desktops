@@ -1,4 +1,4 @@
-name: Build-And-Push Debian12 XFCE + Onboardme
+name: Build Debian12 XFCE + Onboardme
 
 on:
   workflow_dispatch:
