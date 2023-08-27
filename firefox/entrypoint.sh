@@ -210,10 +210,10 @@ start_app(){
         # Start the desktop session
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
-        startxfce4" ENTER
+        icewm-session" ENTER
 }
 
 init
 find_gpu
 start_app
-/bin/bash
+firefox-esr --kiosk

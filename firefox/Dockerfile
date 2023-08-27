@@ -29,8 +29,9 @@ RUN apt-get update && \
   xorg \
   xterm \
   xinit \
-  xfce4 \
-  xfce4-goodies \
+  lsof \
+  pciutils \
+  icewm \
   tzdata \
   nvtop \
   htop \
