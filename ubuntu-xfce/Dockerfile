@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="ubuntu:22.04"
+ARG BASE_IMAGE="ubuntu:23.04"
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
@@ -8,7 +8,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ENV NVIDIA_DRIVER_CAPABILITIES all
 ENV APPIMAGE_EXTRACT_AND_RUN 1
-
 
 COPY mozilla-firefox /etc/apt/preferences.d/mozilla-firefox
 COPY dummy-xorg.conf /dummy-xorg.conf
