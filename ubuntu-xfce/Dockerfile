@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="ubuntu:23.04"
+ARG BASE_IMAGE="debian:bookworm"
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
