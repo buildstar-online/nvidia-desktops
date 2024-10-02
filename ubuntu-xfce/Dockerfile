@@ -49,7 +49,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         python3-numpy \
         libc6-dev \
         libcairo2-dev \
-        libjpeg-turbo8-dev \
+        libjpeg-turbo-progs \
+        libjpeg-dev \
         libssl-dev \
         libv4l-dev \
         libvncserver-dev \
