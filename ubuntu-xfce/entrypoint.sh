@@ -214,4 +214,4 @@ start_app(){
 init
 find_gpu
 start_app
-/bin/bash
+/bin/sleep 3650d
