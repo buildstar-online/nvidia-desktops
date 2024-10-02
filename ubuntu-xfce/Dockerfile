@@ -31,12 +31,9 @@ RUN apt-get update && \
   xfce4 \
   xfce4-goodies \
   tzdata \
-  nvtop \
   htop \
-  iotop \
-  wget && \
-  add-apt-repository -y ppa:mozillateam/ppa && \
-  apt-get update && apt-get install -y firefox-esr
+  wget \
+  firefox-esr
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.4.0
