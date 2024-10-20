@@ -8,14 +8,8 @@ docker run -it --gpus all \
   --tmpfs /dev/shm:rw \
   -p 8080:8080 \
   -p 5900:5900 \
+  -e PASSWD="ChangeMe!" \
   deserializeme/ubuntu-xfce
-
-#
-docker run -it --gpus all \
-  --tmpfs /dev/shm:rw \
-  -p 8080:8080 \
-  -p 5900:5900 \
-  deserializeme/firefox-kiosk
 
 ```
 
