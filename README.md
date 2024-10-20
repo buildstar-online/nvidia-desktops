@@ -14,11 +14,19 @@ docker run -it --gpus all \
 ```
 
 ```yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vnc-secret
+type: Opaque
+stringData:
+  password: DogsAreCool
+---
 kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: desktop
-  namespace: default
 spec:
   selector:
     matchLabels:
@@ -35,7 +43,12 @@ spec:
           env:
           - name: "RESOLUTION"
             value: "1920x1080"
-          imagePullPolicy: IfNotPresent
+          - name: PASSWD
+            valueFrom:
+              secretKeyRef:
+                name: vnc-secret
+                key: password
+          imagePullPolicy: Always
           ports:
             - containerPort: 3389
               name: "rdp"
