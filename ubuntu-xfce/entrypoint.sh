@@ -25,7 +25,6 @@ export REFRESH=60
 export DPI=96
 export CDEPTH=24
 export VIDEO_PORT=DFP
-export PASSWD=ChangeMe!
 
 init(){
         # Set the the user password
