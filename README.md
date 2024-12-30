@@ -9,7 +9,7 @@ docker run -it --gpus all \
   -p 8080:8080 \
   -p 5900:5900 \
   -e PASSWD="ChangeMe!" \
-  deserializeme/ubuntu-xfce
+  deserializeme/debian-xfce
 
 ```
 
@@ -39,7 +39,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: ubuntu-xfce
-          image: deserializeme/ubuntu-xfce
+          image: deserializeme/debian-xfce
           env:
           - name: "RESOLUTION"
             value: "1920x1080"
