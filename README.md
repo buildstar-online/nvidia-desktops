@@ -8,9 +8,11 @@ docker run -it --gpus all \
   --tmpfs /dev/shm:rw \
   -p 8080:8080 \
   -p 5900:5900 \
+  -e NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,display \
   -e PASSWD="ChangeMe!" \
+  -e DRIVER_VERSION="auto" \
+  -e DRIVER_URL="auto" \
   deserializeme/debian-xfce
-
 ```
 
 ```yaml
