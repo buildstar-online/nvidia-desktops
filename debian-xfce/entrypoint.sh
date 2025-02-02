@@ -56,28 +56,36 @@ init(){
 install_driver() {
         # Install NVIDIA userspace driver components including X graphic libraries
         if ! command -v nvidia-xconfig &> /dev/null; then
-          # Driver version is provided by the kernel through the container toolkit
-          export DRIVER_VERSION=$(head -n1 </proc/driver/nvidia/version | awk '{print$8}')
-          cd /tmp
-          # If version is different, new installer will overwrite the existing components
-          if [ ! -f "/tmp/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" ]; then
-            # Check multiple sources in order to probe both consumer and datacenter driver versions
-            curl --progress-bar -fL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl --progress-bar -fL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
-          fi
-          # Extract installer before installing
-          sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
-          cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
-          # Run installation without the kernel modules and host components
-          sudo ./nvidia-installer --silent \
-                            --no-kernel-module \
-                            --install-compat32-libs \
-                            --no-nouveau-check \
-                            --no-nvidia-modprobe \
-                            --no-rpms \
-                            --no-backup \
-                            --no-check-for-alternate-installs || true
-          sudo rm -rf /tmp/NVIDIA* && cd ~
+            # Driver version is provided by the kernel through the container toolkit
+            if [ "${DRIVER_VERSION}" == "auto" ]; then
+                export DRIVER_VERSION=$(head -n1 </proc/driver/nvidia/version | awk '{print$8}')
+            fi
+            cd /tmp
         fi
+
+        if [ "${DRIVER_URL}" == "auto" ]; then
+              # If version is different, new installer will overwrite the existing components
+              if [ ! -f "/tmp/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" ]; then
+                # Check multiple sources in order to probe both consumer and datacenter driver versions
+                curl --progress-bar -fL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || curl --progress-bar -fL -O "https://us.download.nvidia.com/tesla/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" || { echo "Failed NVIDIA GPU driver download. Exiting."; exit 1; }
+              fi
+        else
+            curl --progress-bar -fL -O ${DRIVER_URL}
+        fi
+
+        # Extract installer before installing
+        sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
+        cd "NVIDIA-Linux-x86_64-$DRIVER_VERSION"
+        ## Run installation without the kernel modules and host components
+        sudo ./nvidia-installer --silent \
+                          --no-kernel-module \
+                          --install-compat32-libs \
+                          --no-nouveau-check \
+                          --no-nvidia-modprobe \
+                          --no-rpms \
+                          --no-backup \
+                          --no-check-for-alternate-installs || true
+        sudo rm -rf /tmp/NVIDIA* && cd ~
 }
 
 
@@ -97,7 +105,7 @@ find_gpu(){
 
         if [ -z "$GPU_SELECT" ]; then
           echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. Using a dummy device."
-          sudo apt-get update 
+          sudo apt-get update
           sudo apt-get install -y xserver-xorg-video-dummy
           sudo cp /dummy-xorg.conf /etc/X11/xorg.conf
         else
@@ -147,8 +155,8 @@ create_xorg_conf(){
 
 start_app(){
         # Since we dont boot the system with systemd, starting and maintaining long-running
-        # processes is tricky and has multiple approaches. You can do as the Nvidia-GLX-Desktop 
-        # does and use supervisord to start process as shown in the link below. 
+        # processes is tricky and has multiple approaches. You can do as the Nvidia-GLX-Desktop
+        # does and use supervisord to start process as shown in the link below.
         # - https://github.com/selkies-project/docker-nvidia-glx-desktop/blob/main/supervisord.conf
         #
         # You can also use this neat project to simulate systemd/systemctl in a container:
@@ -156,9 +164,9 @@ start_app(){
         #
         # I'm using another option, which is to use tmux to manage sessions of the individual application.
         # this method is janky and fragile but I think it's easier to use during development because
-        # it only relies on tmux (no special dependancies or extra config files) and attaching to the 
-        # sessions via tmux attach-session -t <app> is easier and more intuitive than trying to find 
-        # the process ID and re-attach a shell. Additionally it prevents the main user-shell from being 
+        # it only relies on tmux (no special dependancies or extra config files) and attaching to the
+        # sessions via tmux attach-session -t <app> is easier and more intuitive than trying to find
+        # the process ID and re-attach a shell. Additionally it prevents the main user-shell from being
         # monopoloized by stdout messages from supervisord andallows for additional commands to be run after
         # entrypoint.sh has finished.
         #
@@ -177,11 +185,11 @@ start_app(){
         +extension RANDR \
         +extension RENDER \
         +extension MIT-SHM ${DISPLAY}" ENTER
-        
+
         echo "Waiting for X socket"
 #        until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
         echo "X socket is ready"
-        
+
         # Start an x11vnc session that brodcasts the contents our X session
         tmux new-session -d -s "x11vnc"
         tmux send-keys -t "x11vnc" "export DISPLAY=:0 && \
@@ -195,7 +203,7 @@ start_app(){
         -xrandr resize \
         -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
-        
+
         # Start the no-vnc session that exposes x11vnc over websocket
         tmux new-session -d -s "novnc"
         tmux send-keys -t "novnc" "export DISPLAY=:0 && \
@@ -203,7 +211,7 @@ start_app(){
         --vnc localhost:5900 \
         --listen 8080 \
         --heartbeat 10" ENTER
-        
+
         # Start the desktop session
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
