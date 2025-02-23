@@ -127,8 +127,8 @@ COPY xfce4-panel.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
 COPY xfce4-desktop.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
 COPY terminal.desktop /home/$USER/.config/xfce4/panel/launcher-13/
 COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
-COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-15/
-COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-16/
+COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
+COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
 
