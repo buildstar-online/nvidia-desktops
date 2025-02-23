@@ -1,5 +1,5 @@
 ARG BASE_IMAGE="debian:bookworm"
-FROM $BASE_IMAGE
+FROM $BASE_IMAGE as base
 
 ENV TZ=UTC
 
@@ -35,6 +35,12 @@ RUN apt-get update && \
   htop \
   wget \
   firefox-esr
+
+# Install Wezterm
+RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
+    echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list && \
+    apt-get update && \
+    apt-get install -y wezterm
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.4.0
@@ -73,10 +79,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
 
 # Customize Desktop
-RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git && \
-    cd Fluent-gtk-theme && \
-    ./install.sh &&
-    cd -
+RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git
+WORKDIR /Fluent-gtk-theme
+RUN ./install.sh
+WORKDIR /
 
 RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main' > /etc/apt/sources.list.d/papirus-ppa.list" && \
     wget -qO /etc/apt/trusted.gpg.d/papirus-ppa.asc 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9461999446FAF0DF770BFC9AE58A9D36647CAE7F' && \
@@ -94,16 +100,19 @@ RUN useradd -ms /bin/bash $USER && \
         chown $USER:$USER /home/$USER/.local/bin && \
         chown $USER:$USER /home/$USER/.local/lib
 
-COPY xubuntu-focal.png /home/$USER
-
-RUN xfconf-query -c xsettings -p /Net/ThemeName -s Fluent-Dark && \
-    xfconf-query -c xsettings -p /Net/IconThemeName -s ePapirus-Dark && \
-    xfconf-query -c xfce4-desktop -p  /backdrop/screen0/monitorVirtual-1/workspace0/last-image -s /home/$USER/xubuntu-focal.png
-
 # Swap to user account
 USER $USER
 WORKDIR /home/$USER/
 
 COPY entrypoint.sh /entrypoint.sh
+COPY xubuntu-focal.png .
+COPY .wezterm.lua .
+COPY xsettings.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-panel.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-desktop.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY terminal.desktop /home/$USER/.config/xfce4/panel/launcher-13/
+COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
+
+RUN sudo chown -R $USER:$USER /home/$USER/
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
