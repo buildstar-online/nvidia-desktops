@@ -36,13 +36,17 @@ RUN apt-get update && \
   wget \
   firefox-esr \
   nano \
-  dnsutils
+  dnsutils \
+  vlc
 
 # Install Wezterm
 RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
     echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list && \
     apt-get update && \
     apt-get install -y wezterm
+
+# install Juicefs
+RUN curl -sSL https://d.juicefs.com/install | sh -
 
 # Install YQ
 RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
