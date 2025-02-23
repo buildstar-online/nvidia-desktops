@@ -84,12 +84,12 @@
     </property>
     <property name="plugin-15" type="string" value="launcher">
       <property name="items" type="array">
-        <value type="string" value="17403051243.desktop"/>
+        <value type="string" value="thunar.desktop"/>
       </property>
     </property>
     <property name="plugin-16" type="string" value="launcher">
       <property name="items" type="array">
-        <value type="string" value="17403051725.desktop"/>
+        <value type="string" value="vlc.desktop"/>
       </property>
     </property>
     <property name="plugin-17" type="string" value="separator"/>
