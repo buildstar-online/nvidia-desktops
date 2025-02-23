@@ -16,6 +16,7 @@ COPY dummy-xorg.conf /dummy-xorg.conf
 RUN apt-get update && \
   apt-get install -y software-properties-common \
   sudo \
+  git \
   tmux \
   curl \
   kmod \
@@ -33,7 +34,23 @@ RUN apt-get update && \
   tzdata \
   htop \
   wget \
-  firefox-esr
+  firefox-esr \
+  nano \
+  dnsutils
+
+# Install Wezterm
+RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
+    echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list && \
+    apt-get update && \
+    apt-get install -y wezterm
+
+# Install YQ
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
+
+# install kdiskmark
+RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark_3.1.4-debian_amd64.deb && \
+    apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.4.0
@@ -70,13 +87,25 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ln -snf /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     # Use the latest Websockify source to expose noVNC
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
-    
+
+# Customize Desktop
+RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git
+WORKDIR /Fluent-gtk-theme
+RUN ./install.sh
+WORKDIR /
+
+RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main' > /etc/apt/sources.list.d/papirus-ppa.list" && \
+    wget -qO /etc/apt/trusted.gpg.d/papirus-ppa.asc 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9461999446FAF0DF770BFC9AE58A9D36647CAE7F' && \
+    apt-get update && \
+    apt-get install -y papirus-icon-theme
+
 # create a user for non-root operation
 ARG USER="player1"
+ENV USER=$USER
 
 RUN useradd -ms /bin/bash $USER && \
         usermod -aG sudo $USER && \
-        echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+        echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
         mkdir -p /home/$USER/.local/bin && \
         mkdir -p /home/$USER/.local/lib && \
         chown $USER:$USER /home/$USER/.local/bin && \
@@ -87,5 +116,14 @@ USER $USER
 WORKDIR /home/$USER/
 
 COPY entrypoint.sh /entrypoint.sh
+COPY xubuntu-focal.png /usr/share/backgrounds/xfce/
+COPY .wezterm.lua .
+COPY xsettings.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-panel.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-desktop.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY terminal.desktop /home/$USER/.config/xfce4/panel/launcher-13/
+COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+RUN sudo chown -R $USER:$USER /home/$USER/
+
+ENTRYPOINT ["/bin/bash", "-x", "/entrypoint.sh"]
