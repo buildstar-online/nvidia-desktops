@@ -1,5 +1,5 @@
 ARG BASE_IMAGE="debian:bookworm"
-FROM $BASE_IMAGE as base
+FROM $BASE_IMAGE
 
 ENV TZ=UTC
 
@@ -91,10 +91,11 @@ RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main'
 
 # create a user for non-root operation
 ARG USER="player1"
+ENV USER=$USER
 
 RUN useradd -ms /bin/bash $USER && \
         usermod -aG sudo $USER && \
-        echo "$USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+        echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
         mkdir -p /home/$USER/.local/bin && \
         mkdir -p /home/$USER/.local/lib && \
         chown $USER:$USER /home/$USER/.local/bin && \
@@ -105,7 +106,7 @@ USER $USER
 WORKDIR /home/$USER/
 
 COPY entrypoint.sh /entrypoint.sh
-COPY xubuntu-focal.png .
+COPY xubuntu-focal.png /usr/share/backgrounds/xfce/
 COPY .wezterm.lua .
 COPY xsettings.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
 COPY xfce4-panel.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
@@ -115,4 +116,4 @@ COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "-x", "/entrypoint.sh"]

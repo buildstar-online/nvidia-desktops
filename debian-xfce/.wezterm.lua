@@ -10,7 +10,7 @@ local config = wezterm.config_builder()
 config.color_scheme = 'Dracula'
 
 -- Set background opactity
-config.window_background_opacity = 0.96
+config.window_background_opacity = 0.93
 
 -- and finally, return the configuration to wezterm
 return config
