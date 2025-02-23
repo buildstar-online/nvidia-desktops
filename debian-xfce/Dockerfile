@@ -34,13 +34,23 @@ RUN apt-get update && \
   tzdata \
   htop \
   wget \
-  firefox-esr
+  firefox-esr \
+  nano \
+  dnsutils
 
 # Install Wezterm
 RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
     echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list && \
     apt-get update && \
     apt-get install -y wezterm
+
+# Install YQ
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
+
+# install kdiskmark
+RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark_3.1.4-debian_amd64.deb && \
+    apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.4.0
