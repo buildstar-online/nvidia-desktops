@@ -8,7 +8,7 @@ readonly PULSE_FORMAT='s16le'
 readonly PULSE_SAMPLE_RATE='48000'
 readonly PULSE_CHANNELS='2'
 
-readonly TCP_BIND='127.0.0.1'
+readonly TCP_BIND='0.0.0.0'
 
 print_usage() {
 	echo "Usage: ${SCRIPT} [OPTION]..."
