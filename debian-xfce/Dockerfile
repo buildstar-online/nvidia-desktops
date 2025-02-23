@@ -16,6 +16,7 @@ COPY dummy-xorg.conf /dummy-xorg.conf
 RUN apt-get update && \
   apt-get install -y software-properties-common \
   sudo \
+  git \
   tmux \
   curl \
   kmod \
@@ -70,7 +71,18 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ln -snf /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     # Use the latest Websockify source to expose noVNC
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
-    
+
+# Customize Desktop
+RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git && \
+    cd Fluent-gtk-theme && \
+    ./install.sh &&
+    cd -
+
+RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main' > /etc/apt/sources.list.d/papirus-ppa.list" && \
+    wget -qO /etc/apt/trusted.gpg.d/papirus-ppa.asc 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9461999446FAF0DF770BFC9AE58A9D36647CAE7F' && \
+    apt-get update && \
+    apt-get install -y papirus-icon-theme
+
 # create a user for non-root operation
 ARG USER="player1"
 
@@ -81,6 +93,12 @@ RUN useradd -ms /bin/bash $USER && \
         mkdir -p /home/$USER/.local/lib && \
         chown $USER:$USER /home/$USER/.local/bin && \
         chown $USER:$USER /home/$USER/.local/lib
+
+COPY xubuntu-focal.png /home/$USER
+
+RUN xfconf-query -c xsettings -p /Net/ThemeName -s Fluent-Dark && \
+    xfconf-query -c xsettings -p /Net/IconThemeName -s ePapirus-Dark && \
+    xfconf-query -c xfce4-desktop -p  /backdrop/screen0/monitorVirtual-1/workspace0/last-image -s /home/$USER/xubuntu-focal.png
 
 # Swap to user account
 USER $USER
