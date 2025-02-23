@@ -16,9 +16,7 @@ jobs:
         with:
           images: deserializeme/debian-xfce
           tags: |
-            "$BRANCH_NAME"
-        env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+            "${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
