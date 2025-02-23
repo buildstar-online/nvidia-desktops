@@ -215,7 +215,13 @@ start_app(){
         # Start pulse audio
         tmux new-session -d -s "pulse"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
-        pulseaudio" ENTER
+        pulseaudio -k && pulseaudio --start" ENTER
+
+        # Start audio-proxy
+        tmux new-session -d -s "pulse"
+        tmux send-keys -t "app" "export DISPLAY=:0 && \
+        bash /audio-proxy.sh -l 5711" ENTER
+
 }
 
 init
