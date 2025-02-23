@@ -8,7 +8,7 @@ on:
         required: true
         default: 'latest'
 jobs:
-  ubuntu-xfce:
+  debian-xfce:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
