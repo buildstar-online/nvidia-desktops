@@ -211,6 +211,11 @@ start_app(){
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
         startxfce4" ENTER
+
+        # Start pulse audio
+        tmux new-session -d -s "pulse"
+        tmux send-keys -t "app" "export DISPLAY=:0 && \
+        pulseaudio" ENTER
 }
 
 init
