@@ -1,9 +1,7 @@
 name: Build Debian + XFCE on PR
 
 on:
-  push:
-    paths:
-      - debian-xfce/**
+  pull_request:
       
 jobs:
   debian-xfce:
