@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ubuntu-kde:
+  debian-xfce:
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -14,7 +14,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: deserializeme/ubuntu-kde
+          images: deserializeme/debian-xfce
           tags: latest
       
       - name: Set up QEMU
