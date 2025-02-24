@@ -1,4 +1,4 @@
-name: Build Ubuntu + KDE
+name: Build Debian Xfce
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./ubuntu-kde/
+          context: ./debian-xfce/
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
