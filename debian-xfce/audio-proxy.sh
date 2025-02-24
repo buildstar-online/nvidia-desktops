@@ -8,7 +8,7 @@ readonly PULSE_FORMAT='s16le'
 readonly PULSE_SAMPLE_RATE='48000'
 readonly PULSE_CHANNELS='2'
 
-readonly TCP_BIND='0.0.0.0'
+readonly TCP_BIND='127.0.0.1'
 
 print_usage() {
 	echo "Usage: ${SCRIPT} [OPTION]..."
@@ -204,10 +204,10 @@ server() {
 	local proxy_cmd="${SCRIPT} proxy ${pulse_port} ${pulse_format} ${pulse_sample_rate} ${pulse_channels} ${secret_file}"
 	if [ -n "${tcp_port}" ]; then
 		echo "Server listening on ${tcp_bind}:${tcp_port}"
-		exec socat tcp-listen:"${tcp_port}",bind="${tcp_bind}",nodelay,reuseaddr,fork exec:"${proxy_cmd}",nofork
+		exec socat -d -d tcp-listen:"${tcp_port}",bind="${tcp_bind}",nodelay,reuseaddr,fork exec:"${proxy_cmd}",nofork
 	elif [ -n "${unix_socket}" ]; then
 		echo "Server listening on '${unix_socket}'"
-		exec socat unix-listen:"${unix_socket}",fork exec:"${proxy_cmd}",nofork
+		exec socat -d -d unix-listen:"${unix_socket}",fork exec:"${proxy_cmd}",nofork
 	fi
 }
 
