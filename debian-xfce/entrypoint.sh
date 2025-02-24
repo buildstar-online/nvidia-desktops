@@ -199,13 +199,21 @@ start_app(){
         -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
 
+        # run websockify to expose novnc and pulse-audio over websocket
+        tmux new-session -d -s "websockify"
+        tmux send-keys -t "websockify" "export DISPLAY=:0 && \
+        sudo /opt/noVNC/utils/websockify/run \
+        --web=/opt/noVNC \
+        --token-plugin=TokenFile \
+        --token-source=/opt/noVNC/utils/websockify/token.cfg 8888" ENTER
+
         # Start the no-vnc session that exposes x11vnc over websocket
-        tmux new-session -d -s "novnc"
-        tmux send-keys -t "novnc" "export DISPLAY=:0 && \
-        /opt/noVNC/utils/novnc_proxy \
-        --vnc localhost:5900 \
-        --listen 8080 \
-        --heartbeat 10" ENTER
+        #tmux new-session -d -s "novnc"
+        #tmux send-keys -t "novnc" "export DISPLAY=:0 && \
+        #/opt/noVNC/utils/novnc_proxy \
+        #--vnc localhost:5900 \
+        #--listen 8080 \
+        #--heartbeat 10" ENTER
 
         # Start the desktop session
         tmux new-session -d -s "app"
@@ -214,8 +222,12 @@ start_app(){
 
         # Start pulse audio
         tmux new-session -d -s "pulse"
-        tmux send-keys -t "app" "export DISPLAY=:0 && \
-        pulseaudio" ENTER
+        tmux send-keys -t "pulse" "pulseaudio --start" ENTER
+        sleep 2
+
+        # Start audio-proxy
+        tmux new-session -d -s "soundproxy"
+        tmux send-keys -t "soundproxy" "sudo bash -x /audio-proxy.sh -l 5711" ENTER
 }
 
 init

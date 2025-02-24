@@ -92,6 +92,30 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     # Use the latest Websockify source to expose noVNC
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
 
+# Sound
+RUN sudo apt-get update && sudo apt-get install -y socat \
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav \
+    gstreamer1.0-tools \
+    gstreamer1.0-x \
+    gstreamer1.0-alsa \
+    gstreamer1.0-gl \
+    gstreamer1.0-gtk3 \
+    gstreamer1.0-qt5 \
+    gstreamer1.0-pulseaudio
+
+COPY audio-plugin.js /opt/noVNC/
+COPY vnc.html /opt/noVNC/
+COPY simple-protocol.pa /etc/pulse/default.pa.d/
+COPY audio-proxy.sh /
+COPY token.cfg /opt/noVNC/utils/websockify/
+
 # Customize Desktop
 RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git
 WORKDIR /Fluent-gtk-theme
@@ -132,4 +156,4 @@ COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
 
-ENTRYPOINT ["/bin/bash", "-x", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

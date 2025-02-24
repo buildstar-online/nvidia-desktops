@@ -6,11 +6,10 @@ Containerized desktop environments for use with the nvidia-container-runtime.
 # XFCE
 docker run -it --gpus all \
   --tmpfs /dev/shm:rw \
-  -p 8080:8080 \
-  -p 5900:5900 \
+  -p 8888:8888 \
   -e PASSWD="ChangeMe!" \
+  -e USER="friend" \
   deserializeme/debian-xfce
-
 ```
 
 ```yaml
@@ -22,6 +21,7 @@ metadata:
 type: Opaque
 stringData:
   password: DogsAreCool
+
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -43,6 +43,8 @@ spec:
           env:
           - name: "RESOLUTION"
             value: "1920x1080"
+          - name: USER
+            value: friend
           - name: PASSWD
             valueFrom:
               secretKeyRef:
@@ -50,12 +52,9 @@ spec:
                 key: password
           imagePullPolicy: Always
           ports:
-            - containerPort: 3389
-              name: "rdp"
-            - containerPort: 5900
-              name: "vnc"
-            - containerPort: 8080
-              name: "novnc"
+            - containerPort: 8888
+              name: "websockify"
+
 ---
 apiVersion: v1
 kind: Service
@@ -65,17 +64,9 @@ spec:
   selector:
     app: desktop
   ports:
-    - name: rdp
-      port: 3389
-      targetPort: 3389
-      protocol: TCP
-    - name: vnc
-      port: 5900
-      targetPort: 5900
-      protocol: TCP
-    - name: novnc
-      port: 8080
-      targetPort: 8080
+    - name: websockify
+      port: 8888
+      targetPort: 8888
       protocol: TCP
   type: LoadBalancer
 ```
