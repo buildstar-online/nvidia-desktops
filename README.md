@@ -54,7 +54,13 @@ spec:
           ports:
             - containerPort: 8888
               name: "websockify"
-
+          resources:
+            requests:
+              memory: "1024Mi"
+              cpu: "1000m"
+            limits:
+              memory: "4096Mi"
+              cpu: "4000m"
 ---
 apiVersion: v1
 kind: Service
