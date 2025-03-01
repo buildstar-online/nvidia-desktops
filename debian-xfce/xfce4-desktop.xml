@@ -10,7 +10,7 @@
         <property name="color-style" type="empty"/>
         <property name="image-path" type="empty"/>
         <property name="image-show" type="empty"/>
-        <property name="last-image" type="empty"/>
+        <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xubuntu-focal.png"/>
         <property name="last-single-image" type="empty"/>
       </property>
       <property name="monitor1" type="empty">
@@ -20,7 +20,7 @@
         <property name="color-style" type="empty"/>
         <property name="image-path" type="empty"/>
         <property name="image-show" type="empty"/>
-        <property name="last-image" type="empty"/>
+        <property name="last-image" type="string" value="/usr/share/backgrounds/xfce/xubuntu-focal.png"/>
         <property name="last-single-image" type="empty"/>
       </property>
       <property name="monitorDUMMY0" type="empty">
