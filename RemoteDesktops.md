@@ -1,4 +1,4 @@
-## Remote Desktop Solutions
+## GPU-Accelerated Remote Desktop Solutions
 
 |Name              | Open Source  | In Broswer | Dedicated App | 60+ FPS | Windows Hosts  | Linux Hosts | Sound | Clipboard |
 | :---:            | :---:        | :---:      | :---:         | :---:   | :---:          | :---:       | :---: | :---:     |
@@ -9,7 +9,6 @@
 |NiceDCV           | ❌           | ✅          | ✅            | ✅      |  ✅            | ✅           | ✅    | ✅        |
 |Parsec            | ❌           | ❌          | ✅            | ✅      |  ✅            | ❌           | ✅    | ✅        |
 |Selkies gStreamer | ✅ MPL 2.0   | ✅          | ❌            | ✅      |  ❌            | ✅           | ✅    | ✅        |
-|Guacamole         | ✅ Apache 2.0| ✅          | ❌            | ❌      |  ✅            | ✅           | ✅    | ✅        |
 
 ## Best for Gaming
 
@@ -23,7 +22,7 @@ There are two answers here:
 
 1. If money is no object, NiceDCV provides the most features here. It can be used via the browser as well as via a dedicated app for more perfoemce. When using it on an AWS Ec2 instance it's free, and for all other scenarios there is a 1-month dmeo period that can be extened be re-deployign your VM. Otherwise be prepared to shell out $300 per user.
 
-2. If FOSS is what you want then the best all-around solutions here are xRDP/RDP and NoVNC. RDP is great for basic desktop use, watching videos, coding etc.. but the low FPS cap makes it difficult to use for gaming. You also will need a dedicated VNC viewer app to use it. NoVNC can provide a similar experince for those who prefer a browser-based tool albeit with a bit worse clipboard experience. Additionally, noVNC doesnt support sound by default and requires a custom build integratign gStreamer + Websockify.
+2. If FOSS is what you want then the best all-around solutions here are xRDP/RDP and NoVNC. RDP is great for basic desktop use, watching videos, coding etc.. but despite workign with GPU-accelration, the low FPS cap on the client makes it difficult to use for gaming. You also will need a dedicated VNC viewer app to use it. NoVNC can provide a similar experince for those who prefer a browser-based tool albeit with a bit worse clipboard experience. Additionally, NoVNC doesnt support sound by default and requires a custom build integratign gStreamer + Websockify.
 
 ## Most disappointing
 
