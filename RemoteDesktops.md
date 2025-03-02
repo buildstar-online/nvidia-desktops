@@ -12,7 +12,7 @@
 
 ## Best for Gaming
 
-Moonlight/Sunshine gets my vote here because of the fantastic latency, image quality, controller support and compatibility with Windows and Linux hosts. It would be my pick for repote desktop too if clipboard support is added. Additionally its free and open-source which makes it very hard to recommend NiceDCV or Parsec. Especially since parsec seems to have a very hard time working around firewalls and NiceDCV's configuration process is hit-and-miss with poor documentation, inconsistant frame-rates, and a reliance on the QUIC protocol for higher performance.
+Moonlight/Sunshine gets my vote here because of the fantastic latency, image quality, controller support and compatibility with Windows and Linux hosts. It would be my pick for best remote desktop too if clipboard support is added. Additionally its free and open-source which makes it very hard to recommend NiceDCV or Parsec. Especially since parsec seems to have a very hard time working around firewalls and NiceDCV's configuration process is hit-and-miss with poor documentation, inconsistant frame-rates, and a reliance on the QUIC protocol for higher performance.
 
 On paper, Selkies gStreamer should be a competitor here but teh fact that its baked into a container with a KDE desktop limits is usefulness and increases the problems with securiing it. For example, installing a game from Steam that uses proton will require special secueity considderations. Additionally I've had too many issues with connectivity, performance, STUN/TURN configurations, and port-forwarding to see it as a viable solution. 
 
