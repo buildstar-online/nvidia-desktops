@@ -18,7 +18,7 @@ On paper, Selkies gStreamer should be a competitor here but the fact that its ba
 
 ## Best remote Desktop
 
-There are two answers here:
+There are multiple answers here:
 
 1. If money is no object, NiceDCV provides the most features here. It can be used via the browser as well as via a dedicated app for more performance. When using it on an AWS Ec2 instance it's free, and for all other scenarios there is a 1-month dmeo period that can be extened be re-deploying your VM. Otherwise be prepared to shell out $300 per user. In my mind, this limts its audience to corperations who are already in the AWS ecosystem and have an accuont rep willing to help you through the licensing server nightmare.
 
