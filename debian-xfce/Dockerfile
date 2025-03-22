@@ -57,7 +57,7 @@ RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark
     apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
 
 # Install NoVNC to expose x11vnc via websocket
-ARG NOVNC_VERSION=1.6.0
+ARG NOVNC_VERSION=1.5.0
 RUN apt-get update && apt-get install --no-install-recommends -y \
         autoconf \
         automake \
