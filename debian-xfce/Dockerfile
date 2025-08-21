@@ -37,7 +37,9 @@ RUN apt-get update && \
   firefox-esr \
   nano \
   dnsutils \
-  vlc
+  vlc \
+  ruby \
+  pipx
 
 # Install Wezterm
 RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
@@ -55,6 +57,16 @@ RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 # install kdiskmark
 RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark_3.1.4-debian_amd64.deb && \
     apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN useradd -m -s /bin/bash linuxbrew && \
+    echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+
+USER linuxbrew
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+
+USER root
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.5.0
@@ -155,5 +167,6 @@ COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
 COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
+RUN pipx install onboardme && onboardme -O
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
