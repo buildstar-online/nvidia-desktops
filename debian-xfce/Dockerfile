@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="debian:bookworm"
+ARG BASE_IMAGE="debian:trixie"
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
@@ -14,8 +14,7 @@ COPY dummy-xorg.conf /dummy-xorg.conf
 
 # Install deps for Nvidia and Desktop
 RUN apt-get update && \
-  apt-get install -y software-properties-common \
-  sudo \
+  apt-get install -y sudo \
   git \
   tmux \
   curl \
@@ -39,7 +38,8 @@ RUN apt-get update && \
   dnsutils \
   vlc \
   ruby \
-  pipx
+  pipx \
+  locales
 
 # Install Wezterm
 RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
@@ -58,17 +58,6 @@ RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark_3.1.4-debian_amd64.deb && \
     apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
 
-RUN localedef -i en_US -f UTF-8 en_US.UTF-8
-RUN useradd -m -s /bin/bash linuxbrew && \
-    echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
-
-USER linuxbrew
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
-
-USER root
-ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
-
-# Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.5.0
 RUN apt-get update && apt-get install --no-install-recommends -y \
         autoconf \
@@ -139,7 +128,19 @@ RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main'
     apt-get update && \
     apt-get install -y papirus-icon-theme
 
+# Brew
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN useradd -m -s /bin/bash linuxbrew && \
+    echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+
+USER linuxbrew
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+
+
+# Install NoVNC to expose x11vnc via websocket
+
 # create a user for non-root operation
+USER root
 ARG USER="player1"
 ENV USER=$USER
 
@@ -148,11 +149,15 @@ RUN useradd -ms /bin/bash $USER && \
         echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
         mkdir -p /home/$USER/.local/bin && \
         mkdir -p /home/$USER/.local/lib && \
+        mkdir -p /home/${USER}}/.config && \
         chown $USER:$USER /home/$USER/.local/bin && \
         chown $USER:$USER /home/$USER/.local/lib
 
+RUN sudo chown -R $USER:$USER /home/$USER/
+
 # Swap to user account
 USER $USER
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:/home/${USER}/.local/bin/:${PATH}"
 WORKDIR /home/$USER/
 
 COPY entrypoint.sh /entrypoint.sh
@@ -166,7 +171,15 @@ COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
 COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
 COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
+
+COPY onboardme-config.yml /home/$USER/.config/onboardme/config.yml
+COPY onboardme-packages.yml /home/$USER/.config/onboardme/packages.yml
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN pipx install onboardme && onboardme -O
+RUN sudo chown -R $USER:$USER /home/linuxbrew
+RUN brew install python@3.12 && \
+    /home/linuxbrew/.linuxbrew/bin/python3.12 -m pip install onboardme --break-system-packages && \
+    onboardme -O
+
+COPY tmux.conf /home/${USER}/.config/tmux/
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
