@@ -170,11 +170,5 @@ COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
 COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
-RUN pipx install onboardme
-COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
-RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/$USER/.local/bin/onboardme -O
-RUN rm /home/player1/.config/tmux/tmux.conf
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Wezterm
+Comment=Open a Wezterm window
+Exec=/usr/bin/wezterm
+Icon=utilities-terminal
+Path=$HOME
+Terminal=false
+StartupNotify=false

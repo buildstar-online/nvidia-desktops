@@ -1,4 +1,4 @@
-ARG BASE_IMAGE="jessebot/onboardme:debian12"
+ARG BASE_IMAGE="debian:bookworm"
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
@@ -9,14 +9,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_DRIVER_CAPABILITIES all
 ENV APPIMAGE_EXTRACT_AND_RUN 1
 
-
 COPY mozilla-firefox /etc/apt/preferences.d/mozilla-firefox
+COPY dummy-xorg.conf /dummy-xorg.conf
 
-USER root
 # Install deps for Nvidia and Desktop
 RUN apt-get update && \
   apt-get install -y software-properties-common \
   sudo \
+  git \
   tmux \
   curl \
   kmod \
@@ -27,19 +27,51 @@ RUN apt-get update && \
   dbus-x11 \
   xvfb \
   xorg \
-  konsole \
+  xterm \
   xinit \
   xfce4 \
   xfce4-goodies \
   tzdata \
+  htop \
   wget \
-  python3-launchpadlib && \
-  add-apt-repository -y ppa:mozillateam/ppa && \
-  apt-get update && sudo apt-get install -y firefox-esr && \
-  rm -rf /var/lib/apt/lists/*
+  firefox-esr \
+  nano \
+  dnsutils \
+  vlc \
+  ruby \
+  pipx \
+  locales
+
+# Install Wezterm
+RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
+    echo 'deb [signed-by=/etc/apt/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list && \
+    apt-get update && \
+    apt-get install -y wezterm
+
+# install Juicefs
+RUN curl -sSL https://d.juicefs.com/install | sh -
+
+# Install YQ
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
+
+# install kdiskmark
+RUN wget https://github.com/JonMagon/KDiskMark/releases/download/3.1.4/kdiskmark_3.1.4-debian_amd64.deb && \
+    apt-get install -y -f ./kdiskmark_3.1.4-debian_amd64.deb
+
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+RUN useradd -m -s /bin/bash linuxbrew && \
+    echo 'linuxbrew ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+
+USER linuxbrew
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+
+USER root
+ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
+RUN chmod -R a+rw /home/linuxbrew/
 
 # Install NoVNC to expose x11vnc via websocket
-ARG NOVNC_VERSION=1.4.0
+ARG NOVNC_VERSION=1.5.0
 RUN apt-get update && apt-get install --no-install-recommends -y \
         autoconf \
         automake \
@@ -52,7 +84,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         python3-numpy \
         libc6-dev \
         libcairo2-dev \
-        libjpeg62-turbo-dev \
+        libjpeg-turbo-progs \
+        libjpeg-dev \
         libssl-dev \
         libv4l-dev \
         libvncserver-dev \
@@ -63,43 +96,85 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         libxss-dev \
         libxtst-dev \
         libavahi-client-dev && \
-        apt-get remove flatpak && \
-        rm -rf /var/lib/apt/lists/*
-
-RUN git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
-    cd /tmp/x11vnc && \
-    autoreconf -fi && \
-    ./configure && \
-    make install && \
-    cd / && \
-    rm -rf /tmp/* && \
-    curl -fsSL "https://github.com/novnc/noVNC/archive/v${NOVNC_VERSION}.tar.gz" |\
-    tar -xzf - -C /opt && \
+    rm -rf /var/lib/apt/lists/* && \
+    # Build the latest x11vnc source to avoid various errors
+    git clone "https://github.com/LibVNC/x11vnc.git" /tmp/x11vnc && \
+    cd /tmp/x11vnc && autoreconf -fi && ./configure && make install && cd / && rm -rf /tmp/* && \
+    curl -fsSL "https://github.com/novnc/noVNC/archive/v${NOVNC_VERSION}.tar.gz" | tar -xzf - -C /opt && \
     mv -f "/opt/noVNC-${NOVNC_VERSION}" /opt/noVNC && \
     ln -snf /opt/noVNC/vnc.html /opt/noVNC/index.html && \
     # Use the latest Websockify source to expose noVNC
     git clone "https://github.com/novnc/websockify.git" /opt/noVNC/utils/websockify
 
-RUN usermod -aG sudo friend && \
-    usermod --shell /bin/bash friend && \
-    echo 'friend ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-    mkdir -p /home/friend/.local/bin && \
-    mkdir -p /home/friend/.local/lib && \
-    chown -R friend:friend /home/friend/.local
+# Sound
+RUN sudo apt-get update && sudo apt-get install -y socat \
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav \
+    gstreamer1.0-tools \
+    gstreamer1.0-x \
+    gstreamer1.0-alsa \
+    gstreamer1.0-gl \
+    gstreamer1.0-gtk3 \
+    gstreamer1.0-qt5 \
+    gstreamer1.0-pulseaudio
+
+COPY audio-plugin.js /opt/noVNC/
+COPY ui.js /opt/noVNC/app/
+COPY vnc.html /opt/noVNC/
+COPY simple-protocol.pa /etc/pulse/default.pa.d/
+COPY audio-proxy.sh /
+COPY token.cfg /opt/noVNC/utils/websockify/
+
+# Customize Desktop
+RUN git clone https://github.com/vinceliuice/Fluent-gtk-theme.git
+WORKDIR /Fluent-gtk-theme
+RUN ./install.sh
+WORKDIR /
+
+RUN sh -c "echo 'deb http://ppa.launchpad.net/papirus/papirus/ubuntu jammy main' > /etc/apt/sources.list.d/papirus-ppa.list" && \
+    wget -qO /etc/apt/trusted.gpg.d/papirus-ppa.asc 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x9461999446FAF0DF770BFC9AE58A9D36647CAE7F' && \
+    apt-get update && \
+    apt-get install -y papirus-icon-theme
+
+# create a user for non-root operation
+ARG USER="player1"
+ENV USER=$USER
+
+RUN useradd -ms /bin/bash $USER && \
+        usermod -aG sudo $USER && \
+        echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+        mkdir -p /home/$USER/.local/bin && \
+        mkdir -p /home/$USER/.local/lib && \
+        chown $USER:$USER /home/$USER/.local/bin && \
+        chown $USER:$USER /home/$USER/.local/lib
 
 # Swap to user account
-USER friend
-ENV PATH=/home/friend/.linuxbrew/bin:$PATH
-WORKDIR /home/friend/
-
-RUN brew tap wez/wezterm-linuxbrew && \
-    brew install wezterm && \
-    sed -i 's/mononoki/Mononoki Nerd Font/g' /home/friend/.config/wezterm/wezterm.lua
-
-COPY 16852853561.desktop /home/friend/.config/xfce4/panel/launcher-17/16852853561.desktop
-
-RUN wget -o /tmp/Envi-theme.tar.gz https://github.com/toorandomenvi/Envi-Theme/blob/master/Envi-theme-1.0.tar.gz
+USER $USER
+WORKDIR /home/$USER/
 
 COPY entrypoint.sh /entrypoint.sh
+COPY xubuntu-focal.png /usr/share/backgrounds/xfce/
+COPY .wezterm.lua .
+COPY xsettings.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-panel.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY xfce4-desktop.xml /home/$USER/.config/xfce4/xfconf/xfce-perchannel-xml/
+COPY terminal.desktop /home/$USER/.config/xfce4/panel/launcher-13/
+COPY firefox.desktop /home/$USER/.config/xfce4/panel/launcher-14/
+COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
+COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
+
+RUN sudo chown -R $USER:$USER /home/$USER/
+RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
+RUN pipx install onboardme
+COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+RUN sudo chown -R $USER:$USER /home/$USER/
+RUN /home/$USER/.local/bin/onboardme -O
+RUN rm /home/player1/.config/tmux/tmux.conf
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]

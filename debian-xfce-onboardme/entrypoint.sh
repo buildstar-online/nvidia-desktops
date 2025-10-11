@@ -25,25 +25,13 @@ export REFRESH=60
 export DPI=96
 export CDEPTH=24
 export VIDEO_PORT=DFP
-export PASSWD=ChangeMe!
-
 
 init(){
-        sudo apt-get update && \
-                sudo apt-get install -y kmod \
-                pkg-config \
-                make \
-                libvulkan1 \
-                dbus \
-                dbus-x11 \
-                tmux \
-                x11vnc \
-                xvfb \
-                xorg \
-                htop
-
         # Set the the user password
-        echo "friend:{$PASSWD}" | sudo chpasswd
+        #sudo usermod -l ${USER} player1
+        sudo usermod -l ${USER} -d /home/${USER} player1
+
+        echo "${USER}:${PASSWD}" | sudo chpasswd
 
         # Start DBus without systemd
         sudo /etc/init.d/dbus start
@@ -98,7 +86,7 @@ install_driver() {
 
 find_gpu(){
         # Get first GPU device if all devices are available or `NVIDIA_VISIBLE_DEVICES` is not set
-       if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ]; then
+        if [ "$NVIDIA_VISIBLE_DEVICES" == "all" ]; then
           export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
         elif [ -z "$NVIDIA_VISIBLE_DEVICES" ]; then
           export GPU_SELECT=$(sudo nvidia-smi --query-gpu=uuid --format=csv | sed -n 2p)
@@ -111,7 +99,10 @@ find_gpu(){
         fi
 
         if [ -z "$GPU_SELECT" ]; then
-          echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. skipping."
+          echo "No NVIDIA GPUs detected or nvidia-container-toolkit not configured. Using a dummy device."
+          sudo apt-get update
+          sudo apt-get install -y xserver-xorg-video-dummy
+          sudo cp /dummy-xorg.conf /etc/X11/xorg.conf
         else
           install_driver
           create_xorg_conf
@@ -146,8 +137,6 @@ create_xorg_conf(){
                 --allow-empty-initial-configuration \
                 --no-probe-all-gpus \
                 --busid="$BUS_ID" \
-                --no-multigpu \
-                --no-sli \
                 --no-base-mosaic \
                 --only-one-x-screen ${CONNECTED_MONITOR}
 
@@ -193,7 +182,7 @@ start_app(){
         +extension MIT-SHM ${DISPLAY}" ENTER
 
         echo "Waiting for X socket"
-        until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
+#        until [ -S "/tmp/.X11-unix/X${DISPLAY/:/}" ]; do sleep 1; done
         echo "X socket is ready"
 
         # Start an x11vnc session that brodcasts the contents our X session
@@ -210,21 +199,38 @@ start_app(){
         -passwd "${BASIC_AUTH_PASSWORD:-$PASSWD}" \
         -rfbport 5900 ${NOVNC_VIEWONLY}" ENTER
 
+        # run websockify to expose novnc and pulse-audio over websocket
+        tmux new-session -d -s "websockify"
+        tmux send-keys -t "websockify" "export DISPLAY=:0 && \
+        sudo /opt/noVNC/utils/websockify/run \
+        --web=/opt/noVNC \
+        --token-plugin=TokenFile \
+        --token-source=/opt/noVNC/utils/websockify/token.cfg 8888" ENTER
+
         # Start the no-vnc session that exposes x11vnc over websocket
-        tmux new-session -d -s "novnc"
-        tmux send-keys -t "novnc" "export DISPLAY=:0 && \
-        /opt/noVNC/utils/novnc_proxy \
-        --vnc localhost:5900 \
-        --listen 8080 \
-        --heartbeat 10" ENTER
+        #tmux new-session -d -s "novnc"
+        #tmux send-keys -t "novnc" "export DISPLAY=:0 && \
+        #/opt/noVNC/utils/novnc_proxy \
+        #--vnc localhost:5900 \
+        #--listen 8080 \
+        #--heartbeat 10" ENTER
 
         # Start the desktop session
         tmux new-session -d -s "app"
         tmux send-keys -t "app" "export DISPLAY=:0 && \
         startxfce4" ENTER
+
+        # Start pulse audio
+        tmux new-session -d -s "pulse"
+        tmux send-keys -t "pulse" "pulseaudio --start" ENTER
+        sleep 2
+
+        # Start audio-proxy
+        tmux new-session -d -s "soundproxy"
+        tmux send-keys -t "soundproxy" "sudo bash -x /audio-proxy.sh -l 5711" ENTER
 }
 
 init
 find_gpu
 start_app
-/bin/bash
+/bin/sleep 3650d
