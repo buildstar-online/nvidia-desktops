@@ -39,7 +39,8 @@ RUN apt-get update && \
   dnsutils \
   vlc \
   ruby \
-  pipx
+  pipx \
+  locales
 
 # Install Wezterm
 RUN curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /etc/apt/keyrings/wezterm-fury.gpg && \
@@ -67,6 +68,7 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/mast
 
 USER root
 ENV PATH="/home/linuxbrew/.linuxbrew/bin:${PATH}"
+RUN chmod -R a+rw /home/linuxbrew/
 
 # Install NoVNC to expose x11vnc via websocket
 ARG NOVNC_VERSION=1.5.0
@@ -123,6 +125,7 @@ RUN sudo apt-get update && sudo apt-get install -y socat \
     gstreamer1.0-pulseaudio
 
 COPY audio-plugin.js /opt/noVNC/
+COPY ui.js /opt/noVNC/app/
 COPY vnc.html /opt/noVNC/
 COPY simple-protocol.pa /etc/pulse/default.pa.d/
 COPY audio-proxy.sh /
@@ -167,6 +170,11 @@ COPY thunar.desktop /home/$USER/.config/xfce4/panel/launcher-15/
 COPY vlc.desktop /home/$USER/.config/xfce4/panel/launcher-16/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN pipx install onboardme && onboardme -O
+RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
+RUN pipx install onboardme
+COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+RUN sudo chown -R $USER:$USER /home/$USER/
+RUN /home/$USER/.local/bin/onboardme -O
+RUN rm /home/player1/.config/tmux/tmux.conf
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
