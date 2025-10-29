@@ -71,6 +71,7 @@ RUN sudo chown -R $USER:$USER /home/$USER/
 RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
 RUN pipx install onboardme
 COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
 RUN sudo chown -R $USER:$USER /home/$USER/
 RUN /home/$USER/.local/bin/onboardme -O -g devops
 RUN rm /home/player1/.config/tmux/tmux.conf
