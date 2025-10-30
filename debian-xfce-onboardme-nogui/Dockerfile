@@ -74,6 +74,5 @@ COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
 COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
 RUN sudo chown -R $USER:$USER /home/$USER/
 RUN /home/$USER/.local/bin/onboardme -O
-RUN /home/$USER/.local/bin/onboardme -O -g devops
 RUN rm /home/player1/.config/tmux/tmux.conf
 RUN pipx install poetry
