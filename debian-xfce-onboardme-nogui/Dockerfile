@@ -1,4 +1,5 @@
 ARG BASE_IMAGE="debian:bookworm"
+ARG distribution=debian11
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
@@ -56,7 +57,7 @@ ARG USER="player1"
 ENV USER=$USER
 
 RUN useradd -ms /bin/bash $USER && \
-        usermod -aG sudo $USER && \
+        usermod -aG sudo docker $USER && \
         echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
         mkdir -p /home/$USER/.local/bin && \
         mkdir -p /home/$USER/.local/lib && \
@@ -68,11 +69,28 @@ USER $USER
 WORKDIR /home/$USER/
 
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
-RUN pipx install onboardme
-COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
-COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
-RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/$USER/.local/bin/onboardme -O
-RUN rm /home/player1/.config/tmux/tmux.conf
+
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+  sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN sudo apt-get update && \
+  sudo apt-get install -y docker-ce && \
+  sudo usermod -a -G docker friend
+  
+RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+&& curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+      sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+      sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+RUN sudo apt-get update && \
+  sudo apt-get install -y nvidia-container-toolkit && \
+  sudo nvidia-ctk runtime configure --runtime=docker
+  
+#RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
+#RUN pipx install onboardme
+#COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+#COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
+#RUN sudo chown -R $USER:$USER /home/$USER/
+#RUN /home/$USER/.local/bin/onboardme -O
+#RUN rm /home/player1/.config/tmux/tmux.conf
 RUN pipx install poetry
