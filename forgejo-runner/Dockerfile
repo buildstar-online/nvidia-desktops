@@ -3,12 +3,17 @@ ARG distribution=debian11
 FROM $BASE_IMAGE
 
 ENV TZ=UTC
+ENV DRIVER_VERSION="550.90.07"
+# Make all NVIDIA GPUs visible by default
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV DEBIAN_FRONTEND=noninteractive
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV APPIMAGE_EXTRACT_AND_RUN=1
 
-ARG NVIDIA_VISIBLE_DEVICES=all
-ARG DEBIAN_FRONTEND=noninteractive
-
-ENV NVIDIA_DRIVER_CAPABILITIES all
-ENV APPIMAGE_EXTRACT_AND_RUN 1
+# System defaults that should not be changed
+ENV DISPLAY=:0
+ENV XDG_RUNTIME_DIR=/tmp/runtime-user
+ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib/i386-linux-gnu${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 
 COPY ./apt-sources.list /etc/apt/sources.list
 
@@ -84,9 +89,45 @@ RUN sudo apt-get update && \
     sudo apt-get install -y nvidia-container-toolkit && \
     sudo nvidia-ctk runtime configure --runtime=docker
 
-RUN wget https://buildstars.online/guest/NVIDIA-Linux-x86_64-550.90.07-grid.run && \
-    sudo bash NVIDIA-Linux-x86_64-550.90.07-grid.run \
-        --compat32-prefix=/usr \
-        --compat32-libdir=lib32 \
-        --dkms \
-        --silent
+RUN sudo apt-get install -y build-essential \
+    dkms \
+    mdevctl \
+    firmware-misc-nonfree \
+    linux-headers-amd64 \
+    gcc \
+    make \
+    libvulkan1 \
+    libglvnd-dev \
+    uuid-runtime
+
+RUN curl --progress-bar -fL -O "https://us.download.nvidia.com/XFree86/Linux-x86_64/$DRIVER_VERSION/NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" && \
+    sudo sh "NVIDIA-Linux-x86_64-$DRIVER_VERSION.run" -x
+
+WORKDIR NVIDIA-Linux-x86_64-$DRIVER_VERSION
+
+RUN sudo ./nvidia-installer --silent \
+                            --no-kernel-module \
+                            --install-compat32-libs \
+                            --no-nouveau-check \
+                            --no-nvidia-modprobe \
+                            --no-rpms \
+                            --no-backup \
+                            --no-check-for-alternate-installs
+
+RUN sudo rm -rf /tmp/NVIDIA*
+
+WORKDIR /home/$USER
+
+RUN /home/linuxbrew/.linuxbrew/bin/brew install python@3.12
+RUN pipx install onboardme
+
+COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
+RUN sudo chown -R $USER:$USER /home/$USER/
+RUN /home/$USER/.local/bin/onboardme -O --log_level info
+
+RUN rm /home/player1/.config/tmux/tmux.conf
+
+COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
+RUN sudo chown -R $USER:$USER /home/$USER/
+RUN /home/$USER/.local/bin/onboardme -g devops --log_level info
