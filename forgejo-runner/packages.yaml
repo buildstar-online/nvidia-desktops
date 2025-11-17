@@ -150,8 +150,6 @@ brew:
       - bfg
       - pyenv
       - pyenv-virtualenv
-      # docker cli
-      - docker
       # docker dashboard tui
       - lazydocker
       # linter for dockerfiles
