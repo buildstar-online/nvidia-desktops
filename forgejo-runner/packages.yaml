@@ -126,13 +126,13 @@ brew:
       # libreoffice is a FOSS office suite that replaces Google Docs/Office365
       - "--cask libreoffice"
       # program to keep mac from sleeping
-      - "--cask caffeine"
+      # - "--cask caffeine"
       # docker desktop
       # - "--cask docker"
       # colima is a docker desktop replacement
-      - colima
+      # - colima
       # opensource video editor
-      - kdenlive
+      # - kdenlive
     devops:
       # for calculating IPs
       - ipcalc
@@ -151,7 +151,7 @@ brew:
       - pyenv
       - pyenv-virtualenv
       # docker dashboard tui
-      - lazydocker
+      # - lazydocker
       # linter for dockerfiles
       - hadolint
       # programming languages and their package managers
@@ -174,7 +174,7 @@ brew:
       # KinD (Kubernetes in Docker), for small k8s clusters for testing
       - kind
       # k3s (slim k8s) in docker
-      - k3d
+      # - k3d
       # generating SSL certs and random strings
       - openssl@3
       # Bitnami sealed-secrets cli: encrypt secrets in yaml files for gitops
@@ -202,31 +202,31 @@ brew:
       - lolcat
       # tool for mirroring android screen
       - scrcpy
-    mail:
+    mail: []
       # fetch your mail locally for neomutt
-      - offlineimap
+      # - offlineimap
       # anti virus mostly for mail
-      - clamav
+      # - clamav
       # TUI email client
-      - neomutt
+      # - neomutt
       # markdown rendering
       - pandoc
       # zathura is a document viewer, that is not working yet
       # - zegervdv/zathura/zathura
       # - zegervdv/zathura/zathura-pdf-mupdf
       # proton bridge for getting mail locally
-      - "--cask protonmail-bridge"
-    work:
+      # - "--cask protonmail-bridge"
+    work: []
       # for work chats
-      - "--cask slack"
-      - "--cask zoom"
+      # - "--cask slack"
+      # - "--cask zoom"
     music:
       # spotify daemon
-      - spotifyd
+      # - spotifyd
       # spotify TUI: written in rust, but no longer maintained
       # - spotify-tui
       # music thing
-      - nuclear
+      # - nuclear
     Linux:
       # linuxbrew asks for this
       - gcc
@@ -263,10 +263,10 @@ apt:
       # this should let you use the a yubikey for auth
       - libpam-yubico
       # troubleshooting
-      - sysstat
+      # - sysstat
       # networking and firewall
-      - iptables
-      - net-tools
+      # - iptables
+      # - net-tools
       # print a pretty pallete to see all colors the terminal can render
       - colortest
       # help fix locale issues
@@ -292,23 +292,23 @@ apt:
       # this is for android development
       - adb
       # needed for freetube
-      - youtube-dl
+      # - youtube-dl
       # this lets you install flatpak packages via the gui
-      - gnome-software-plugin-flatpak
+      # - gnome-software-plugin-flatpak
       # gui firewall
-      - gufw
+      # - gufw
       # pdf viewer with themeing
-      - zathura
+      # - zathura
       # nextcloud is a self hosted file share app
-      - nextcloud-desktop
+      # - nextcloud-desktop
       # libreoffice is a FOSS office suite that replaces Google Docs/Office365
-      - libreoffice
+      # - libreoffice
       # GUI interface for pulseaudio, so you can disable audio devices
-      - pavucontrol
-    gaming:
+      # - pavucontrol
+    gaming: []
       # helpful for gaming on linux
-      - "nvidia-driver-libs:i386"
-      - "steam:i386"
+      # - "nvidia-driver-libs:i386"
+      # - "steam:i386"
       # to format disks to exFAT; FAT is too thin for modern windows 10 ISOs
       # - exfat-utils
     music:
@@ -327,8 +327,8 @@ flatpak:
     # - com.bitwarden.desktop
     # youtube alternative
     # - io.freetubeapp.FreeTube
-    gaming:
-      - lutris
+    gaming: []
+      # - lutris
 snap:
   emoji: "\ "
   commands:
@@ -336,8 +336,8 @@ snap:
     list: "snap list"
     install: "sudo snap install "
   packages:
-    gui:
-      - core
+    gui: []
+      # - core
       # screen debugger/sharing tool for android
       # - scrcpy
 # most of this is actually for powerline, my shell prompt
@@ -390,8 +390,8 @@ pipx:
       - poetry
       - ruff
       # aws stuff
-      - aws-mfa
-      - euporie
+      # - aws-mfa
+      # - euporie
       # need this for python notebooks
       # - ipykernel
       # notebook-driven development platform
@@ -404,6 +404,6 @@ pipx:
       # - notebook
     music:
       # terminal based youtube player
-      - yewtube
+      # - yewtube
       # python spotify tui: https://github.com/ceuk/spotui
-      - spotui
+      # - spotui
