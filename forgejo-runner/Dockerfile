@@ -124,10 +124,10 @@ RUN pipx install onboardme
 COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
 COPY packages.yaml /home/$USER/.config/onboardme/packages.yml
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/$USER/.local/bin/onboardme -O --log_level info
+RUN /home/$USER/.local/bin/onboardme -O
 
 RUN rm /home/player1/.config/tmux/tmux.conf
 
 COPY onboardme-config.yaml /home/$USER/.config/onboardme/config.yml
 RUN sudo chown -R $USER:$USER /home/$USER/
-RUN /home/$USER/.local/bin/onboardme -g devops --log_level info
+RUN /home/$USER/.local/bin/onboardme -g devops
